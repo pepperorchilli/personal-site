@@ -1,0 +1,47 @@
+# 图书管理系统 —— systemd 服务单元
+#
+# 部署位置： /etc/systemd/system/library-system.service
+# 启用：     systemctl daemon-reload && systemctl enable --now library-system
+#
+# 为什么不用 `python app.py`：
+#   Flask 自带的开发服务器是单线程的，且有明确的"不要用于生产"警告。
+#   这里用 gunicorn（WSGI 服务器）跑，多进程 + 更稳。
+
+[Unit]
+Description=Library Management System (Flask via gunicorn)
+Documentation=file:/opt/personal-site/docs/DEPLOY.md
+After=network.target
+
+[Service]
+Type=simple
+
+# 用独立的低权限账号跑（首次部署时执行：
+#   useradd -r -s /bin/false library  &&  chown -R library:library /opt/library-system
+# 如果嫌麻烦也可以改成 root，但不推荐
+User=library
+Group=library
+
+WorkingDirectory=/opt/library-system/webapp
+
+# 监听 127.0.0.1，只允许本机 Nginx 转发进来（不直接对外暴露）
+Environment=LIBRARY_PORT=5001
+Environment=PYTHONUNBUFFERED=1
+
+# -w 2：两个工作进程（2G 内存的小机器够用）
+# 数据存在内存里，多进程会导致各自持有不同副本 —— 所以固定 1 个 worker 更安全
+ExecStart=/opt/library-system/.venv/bin/gunicorn \
+          --workers 1 \
+          --bind 127.0.0.1:5001 \
+          --access-logfile - \
+          --error-logfile - \
+          app:app
+
+Restart=always
+RestartSec=3
+
+# 日志走 journald，用 journalctl -u library-system 查看
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

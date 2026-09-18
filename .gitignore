@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 部署时的临时/本地覆盖文件（不要提交真实密码）
+deploy/*.local
+.env
+.env.local

@@ -1,0 +1,125 @@
+/* 个人网站首页样式 —— 深色主题，与各项目模块保持一致 */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #1a1a2e;
+  --bg-soft: rgba(255, 255, 255, .06);
+  --fg: #ffffff;
+  --fg-dim: #8a8aa0;
+  --fg-mute: #55556a;
+  --accent: #00e5ff;
+  --line: rgba(255, 255, 255, .1);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.65;
+}
+
+/* ---------- 顶部 ---------- */
+.hero {
+  padding: 88px 20px 64px;
+  background:
+    radial-gradient(900px 380px at 50% -10%, rgba(0, 229, 255, .12), transparent 70%),
+    linear-gradient(180deg, #1e1e38 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-inner { max-width: 780px; margin: 0 auto; text-align: center; }
+
+h1 { font-size: 34px; font-weight: 700; letter-spacing: -.5px; }
+.hl { color: var(--accent); }
+
+.tagline { color: var(--fg-dim); font-size: 15px; margin-top: 8px; }
+
+.intro {
+  color: #b8b8cc; font-size: 15px;
+  margin: 22px auto 0; max-width: 560px;
+}
+
+.links { margin-top: 26px; display: flex; gap: 12px; justify-content: center; }
+.links a {
+  color: var(--accent); text-decoration: none; font-size: 14px;
+  border: 1px solid rgba(0, 229, 255, .3); border-radius: 999px;
+  padding: 8px 20px; transition: all .18s;
+}
+.links a:hover { background: rgba(0, 229, 255, .12); border-color: rgba(0, 229, 255, .6); }
+
+/* ---------- 通用容器 ---------- */
+.container { max-width: 1000px; margin: 0 auto; padding: 56px 20px 0; }
+
+.section-title {
+  font-size: 13px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--fg-mute);
+  margin-bottom: 20px;
+}
+
+/* ---------- 项目卡片 ---------- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.card {
+  display: flex; flex-direction: column;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  text-decoration: none; color: inherit;
+  transition: transform .18s, border-color .18s, background .18s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 229, 255, .4);
+  background: rgba(0, 229, 255, .05);
+}
+
+.card-icon { font-size: 30px; margin-bottom: 12px; }
+.card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.card-desc { font-size: 13.5px; color: #a8a8c0; flex: 1; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.tags span {
+  font-size: 11px; padding: 3px 9px; border-radius: 6px;
+  background: rgba(255, 255, 255, .07); color: var(--fg-dim);
+}
+
+.card-enter {
+  margin-top: 16px; font-size: 13px; color: var(--accent);
+  font-weight: 500;
+}
+
+/* ---------- 技术栈 ---------- */
+.stack {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+}
+.stack-group {
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: 14px; padding: 18px;
+}
+.stack-group h4 {
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;
+}
+.stack-group p { font-size: 13px; color: #a8a8c0; }
+
+/* ---------- 页脚 ---------- */
+.footer {
+  text-align: center; padding: 56px 20px 48px;
+  color: var(--fg-mute); font-size: 12.5px;
+}
+
+/* ---------- 移动端 ---------- */
+@media (max-width: 600px) {
+  .hero { padding: 60px 20px 44px; }
+  h1 { font-size: 26px; }
+  .container { padding-top: 40px; }
+}

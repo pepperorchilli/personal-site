@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>个人网站</title>
+<meta name="description" content="六自由度机械臂 · 图书管理系统 · 个人项目作品集">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- ============ 顶部 ============ -->
+<header class="hero">
+  <div class="hero-inner">
+    <!-- ⚠️ 下面这几行换成你自己的信息 -->
+    <h1>你好，我是 <span class="hl">你的名字</span></h1>
+    <p class="tagline">计算机科学与技术 · 2026 届</p>
+    <p class="intro">
+      喜欢把东西从零做出来 —— 从嵌入式硬件、云端服务，到网页界面。
+      下面是我最近做的三个项目，都可以直接点进去看。
+    </p>
+    <div class="links">
+      <a href="https://github.com/pepperorchilli" target="_blank" rel="noopener">GitHub</a>
+      <a href="mailto:你的邮箱@example.com">邮箱</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 项目 ============ -->
+<main class="container">
+  <h2 class="section-title">我的项目</h2>
+
+  <div class="cards">
+
+    <!-- 机械臂 -->
+    <a class="card" href="/control">
+      <div class="card-icon">🦾</div>
+      <h3>六自由度机械臂</h3>
+      <p class="card-desc">
+        3D 打印的六轴机械臂，支持公网远程控制与手势识别。
+        ESP32 主动连出至云端，无需公网 IP 即可随时随地操控。
+      </p>
+      <div class="tags">
+        <span>C++ / Arduino</span><span>ESP32-S3</span><span>WebSocket</span>
+        <span>Node.js</span><span>Vue 3</span><span>MediaPipe</span>
+      </div>
+      <span class="card-enter">进入控制台 →</span>
+    </a>
+
+    <!-- 图书管理 -->
+    <a class="card" href="/library/">
+      <div class="card-icon">📚</div>
+      <h3>图书管理系统</h3>
+      <p class="card-desc">
+        用 Python 手写数据结构实现的图书管理系统 ——
+        哈希表索引用户、二叉搜索树检索图书、栈支撑操作撤销。
+      </p>
+      <div class="tags">
+        <span>Python</span><span>哈希表</span><span>二叉搜索树</span>
+        <span>双向链表</span><span>Flask</span>
+      </div>
+      <span class="card-enter">进入系统 →</span>
+    </a>
+
+    <!-- 留言板 -->
+    <a class="card" href="/messages">
+      <div class="card-icon">💬</div>
+      <h3>留言板</h3>
+      <p class="card-desc">
+        给来访者留个言吧。数据存在 MySQL 里，
+        列表接口用「两条查询 + 内存归组」避免了 N+1 问题。
+      </p>
+      <div class="tags">
+        <span>MySQL</span><span>Express</span><span>索引优化</span>
+      </div>
+      <span class="card-enter">去看看 →</span>
+    </a>
+
+  </div>
+</main>
+
+<!-- ============ 技术栈 ============ -->
+<section class="container">
+  <h2 class="section-title">技术栈</h2>
+  <div class="stack">
+    <div class="stack-group">
+      <h4>嵌入式</h4>
+      <p>C / C++ · ESP32-S3 · I2C · PWM · 串口总线协议</p>
+    </div>
+    <div class="stack-group">
+      <h4>后端</h4>
+      <p>Node.js · Express · WebSocket · MySQL · Flask</p>
+    </div>
+    <div class="stack-group">
+      <h4>前端</h4>
+      <p>Vue 3 · Vite · HTML / CSS / JavaScript · PWA</p>
+    </div>
+    <div class="stack-group">
+      <h4>其他</h4>
+      <p>Python · OpenCV · MediaPipe · Git · Linux · Nginx</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>用 Node.js + Flask + Nginx 自建部署</p>
+</footer>
+
+</body>
+</html>
