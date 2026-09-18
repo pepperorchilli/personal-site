@@ -31,20 +31,18 @@ module.exports = {
       // 内存超限自动重启（2G 小机器上防内存泄漏拖垮系统）
       max_memory_restart: '400M',
 
+      // ⚠️ 这里**故意不设置** ADMIN_PASSWORD / ESP32_TOKEN / DB_PASSWORD
+      //
+      //    原因：server/config.js 读配置的写法是
+      //        process.env.ADMIN_PASSWORD || '默认值'
+      //    环境变量**优先**。如果在这里写了占位值，就会盖掉 config.js
+      //    里的真实密码，导致数据库连接失败、服务起不来。
+      //
+      //    密码统一由服务器上的 config.js 提供（该文件不进 Git、
+      //    也不会被 rsync 覆盖，见 deploy/push.sh 的排除规则）。
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
-
-        // ⚠️ 下面三项必须改成你自己的值
-        //    也可以用 pm2 的 --update-env 配合系统环境变量覆盖
-        ADMIN_PASSWORD: 'CHANGE_ME_管理员密码',
-        ESP32_TOKEN: 'CHANGE_ME_ESP32暗号',
-        DB_PASSWORD: 'CHANGE_ME_数据库密码',
-
-        DB_HOST: '127.0.0.1',
-        DB_PORT: 3306,
-        DB_USER: 'arm_app',
-        DB_NAME: 'robot_arm',
       },
 
       // 日志

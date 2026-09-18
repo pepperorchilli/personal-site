@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 #
-# 一键更新部署 —— 日常改完代码后跑这个
+# 一键更新部署（服务器侧，用 git pull 拉代码）
+#
+# ⚠️ 适用场景：服务器**能访问 GitHub**
+#
+#    本项目实际用的服务器（82.157.162.144）连不上 GitHub，
+#    所以那边用的是 **push.sh**（在本地运行，rsync 推代码过去）。
+#    如果你换了能访问 GitHub 的服务器，再用这个脚本。
 #
 # 用法（在服务器上）：
 #   bash /opt/personal-site/deploy/deploy.sh

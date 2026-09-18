@@ -92,12 +92,18 @@ cd JC1503-Library-System && .venv/bin/python webapp/app.py
 
 ```bash
 # 服务器上（只需一次）
-git clone <本仓库> /opt/personal-site
 bash /opt/personal-site/deploy/setup-server.sh
 
-# 之后每次更新代码
-bash /opt/personal-site/deploy/deploy.sh
+# 之后每次更新代码 —— 在【本地】跑
+cd ~/Desktop/personal-site
+bash deploy/push.sh
 ```
+
+> ⚠️ **本服务器连不上 GitHub**（国内网络），所以服务器上没法 `git pull`。
+> `push.sh` 是从你电脑 rsync 推代码过去，并远程重建前端、重启服务。
+>
+> `deploy.sh` 是给「服务器能访问 GitHub」的场景用的（在服务器上跑 `git pull`），
+> 本机不适用。
 
 ---
 

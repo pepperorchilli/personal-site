@@ -193,16 +193,70 @@ done
 
 ## 日常更新
 
-改完代码后，在服务器上跑一条命令：
+### ⚠️ 本服务器连不上 GitHub
+
+实测：服务器 `curl https://github.com` 超时（国内网络常见），
+所以**服务器上 `git pull` 是拉不动的**。
+
+改成**从你电脑推送**——在**本地**跑一条命令：
 
 ```bash
-bash /opt/personal-site/deploy/deploy.sh
+cd ~/Desktop/personal-site
+bash deploy/push.sh
 ```
 
-它会：拉取三个仓库 → 重建 Vue 前端 → 更新 Python 依赖 → 重启服务 → 检查 Nginx。
+它会：rsync 三个仓库 → 重建 Vue 前端 → 更新 Python 依赖 → 重启服务 → 健康检查。
 
-> ⚠️ **别漏掉前端构建**：`public/control/` 在 `.gitignore` 里，
-> 服务器上必须 `npm run build` 才有内容。`deploy.sh` 已经包含了这步。
+`push.sh` 顶部的配置项（服务器 IP、密钥路径、本地仓库路径）按需修改。
+
+> ⚠️ **别漏掉前端构建**：`public/control/` 在 `.gitignore` 里，rsync 也排除了它，
+> 服务器上必须 `npm run build` 才有内容。`push.sh` 已经包含了这步。
+
+---
+
+## ⚠️ 已知陷阱（都是实际踩过的）
+
+### 1. rsync 不认 .gitignore，会覆盖服务器上的凭据
+
+**症状**：跑完部署，机械臂服务起不来，日志报
+`Access denied for user 'arm_app'@'localhost'`。
+
+**原因**：本地的 `server/config.js`（开发用密码）被 rsync 覆盖到服务器，
+替换掉了生产配置。同理 `secrets.h` 也会被覆盖。
+
+**避免**：`push.sh` 里已加 `--exclude 'config.js' --exclude 'secrets.h'`。
+**如果你自己写同步命令，务必带上这两个排除项。**
+
+### 2. uv 装的 Python 在 /root 下，服务账号访问不了
+
+**症状**：systemd 报 `Failed to execute gunicorn: Permission denied`。
+
+**原因**：uv 默认把 Python 装在 `/root/.local/share/uv/python/`，
+venv 里的 `python` 是指向那里的符号链接，而 `library` 用户无权进入 `/root`。
+
+**解决**：安装时指定公共目录：
+
+```bash
+export UV_PYTHON_INSTALL_DIR=/opt/uv-python
+uv python install 3.13
+chmod -R a+rX /opt/uv-python
+```
+
+### 3. RHEL 系用 conf.d 而不是 sites-available
+
+本服务器是 **OpenCloudOS 9**（RHEL 系），nginx 配置放
+`/etc/nginx/conf.d/personal-site.conf`，不是 Ubuntu 的
+`/etc/nginx/sites-available/`。
+
+**另外**：RHEL 自带的 `nginx.conf` 里有一个 `listen 80` 的默认 server 块，
+会和我们的配置冲突（日志报 `conflicting server name "_"`），
+需要把它注释掉。`setup-server.sh` 会处理，手动装的话记得检查。
+
+### 4. gunicorn 需要用户家目录
+
+**症状**：`Control server error: [Errno 13] Permission denied: '/home/library'`
+
+**解决**：`mkdir -p /home/library && chown library:library /home/library`
 
 ---
 
