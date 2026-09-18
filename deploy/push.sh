@@ -9,10 +9,12 @@
 #   所以服务器上没法 `git pull`。改成从本地 rsync 推代码过去。
 #
 # 做的事：
-#   1. rsync 三个仓库到服务器
-#   2. 远程重建 Vue 前端、更新 Python 依赖
-#   3. 重启 Node 和 Flask 服务
-#   4. 健康检查
+#   1. rsync 三个仓库到服务器（凭据文件除外）
+#   2. 应用 Nginx 配置（有变化才 reload）
+#   3. 远程重建 Vue 前端
+#   4. 更新 Node / Python 依赖
+#   5. 重启 Node 和 Flask 服务
+#   6. 健康检查
 
 set -euo pipefail
 
@@ -55,7 +57,7 @@ RSYNC_EXCLUDES=(
 log() { echo -e "\n\033[36m▶ $1\033[0m"; }
 
 # ---------- 0. 连通性检查 ----------
-log "[0/5] 检查服务器连接"
+log "[0/6] 检查服务器连接"
 if ! $SSH "echo ok" >/dev/null 2>&1; then
   echo "  ❌ 连不上 $SERVER_IP"
   echo "     检查：1) IP 是否正确  2) 密钥路径  3) 网络"
@@ -64,7 +66,7 @@ fi
 echo "  ✅ 连接正常"
 
 # ---------- 1. 同步代码 ----------
-log "[1/5] 同步代码到服务器"
+log "[1/6] 同步代码到服务器"
 
 $SSH "mkdir -p /opt/personal-site /opt/robot-arm /opt/library-system"
 
@@ -88,24 +90,42 @@ $SSH "chown -R root:root /opt/personal-site /opt/robot-arm && \
       chown -R library:library /opt/library-system"
 echo "  ✅ 同步完成"
 
-# ---------- 2. 重建前端 ----------
-log "[2/5] 重建机械臂前端"
+# ---------- 2. 更新 Nginx 配置 ----------
+log "[2/6] 更新 Nginx 配置"
+# ⚠️ 这一步不能少：代码同步到 /opt/ 并不会让 nginx 生效，
+#    必须复制到 /etc/nginx/conf.d/ 并 reload。
+#    （漏掉这步的后果：改了 nginx 配置却一直不生效，
+#      比如 X-Forwarded-For 没转发，限流会把所有访客当成同一个 IP）
+if $SSH "diff -q /opt/personal-site/deploy/nginx.conf /etc/nginx/conf.d/personal-site.conf" >/dev/null 2>&1; then
+  echo "  Nginx 配置无变化"
+else
+  echo "  检测到配置变化，正在应用…"
+  if $SSH "cp /opt/personal-site/deploy/nginx.conf /etc/nginx/conf.d/personal-site.conf && nginx -t" 2>&1 | tail -2; then
+    $SSH "systemctl reload nginx"
+    echo "  ✅ 已应用并重载"
+  else
+    echo "  ❌ 配置有语法错误，已保留旧配置（nginx -t 未通过）"
+  fi
+fi
+
+# ---------- 3. 重建前端 ----------
+log "[3/6] 重建机械臂前端"
 # ⚠️ public/control/ 在 .gitignore 里，rsync 也排除了，服务器上必须重新构建
 $SSH "cd /opt/robot-arm/robot-arm2/server/web && npm run build 2>&1 | tail -4"
 
-# ---------- 3. 更新依赖 ----------
-log "[3/5] 更新依赖"
+# ---------- 4. 更新依赖 ----------
+log "[4/6] 更新依赖"
 $SSH "cd /opt/robot-arm/robot-arm2/server && npm install --omit=dev --no-audit --no-fund 2>&1 | tail -2"
 $SSH "export PATH=/root/.local/bin:\$PATH UV_PYTHON_INSTALL_DIR=/opt/uv-python; \
       cd /opt/library-system && uv pip install -q -r requirements-web.txt && echo '  Python 依赖已更新'"
 
-# ---------- 4. 重启服务 ----------
-log "[4/5] 重启服务"
+# ---------- 5. 重启服务 ----------
+log "[5/6] 重启服务"
 $SSH "pm2 reload robot-arm 2>&1 | tail -2"
 $SSH "systemctl restart library-system && echo '  图书管理已重启'"
 
-# ---------- 5. 健康检查 ----------
-log "[5/5] 健康检查"
+# ---------- 6. 健康检查 ----------
+log "[6/6] 健康检查"
 sleep 3
 $SSH '
   echo "  服务状态:"
