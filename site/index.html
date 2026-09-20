@@ -9,8 +9,7 @@
 </head>
 <body>
 
-<!-- 星空背景：由 JS 绘制，见页面底部 -->
-<canvas id="sky"></canvas>
+<!-- 星空背景由 starfield.js 自动插入 canvas，这里不用手写 -->
 
 <main class="stage">
   <h1 class="welcome">欢迎来到岱鼠之家</h1>
@@ -26,86 +25,8 @@
   </nav>
 </main>
 
-<script>
-// ---------- 星空 ----------
-//
-// 纯 canvas 手绘，不引任何库。
-// 三层星星做出纵深感：远的暗而小、近的亮而大，各自以不同频率闪烁。
-
-(function () {
-  const canvas = document.getElementById('sky');
-  const ctx = canvas.getContext('2d');
-
-  let stars = [];
-  let dpr = 1;
-
-  // 三层：密度、大小、闪烁速度各不相同
-  const LAYERS = [
-    { count: 0.00012, size: [0.4, 0.9], speed: 0.00025, alpha: [0.25, 0.55] }, // 远
-    { count: 0.00006, size: [0.8, 1.5], speed: 0.00045, alpha: [0.45, 0.8] },  // 中
-    { count: 0.00002, size: [1.4, 2.4], speed: 0.0008,  alpha: [0.7, 1.0] },   // 近
-  ];
-
-  function resize() {
-    dpr = window.devicePixelRatio || 1;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    buildStars(w * h, w, h);
-  }
-
-  function buildStars(area, w, h) {
-    stars = [];
-    for (const layer of LAYERS) {
-      const n = Math.round(area * layer.count);
-      for (let i = 0; i < n; i++) {
-        stars.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: layer.size[0] + Math.random() * (layer.size[1] - layer.size[0]),
-          baseAlpha: layer.alpha[0] + Math.random() * (layer.alpha[1] - layer.alpha[0]),
-          speed: layer.speed * (0.6 + Math.random() * 0.8),
-          phase: Math.random() * Math.PI * 2,
-        });
-      }
-    }
-  }
-
-  function draw(t) {
-    const w = canvas.width / dpr;
-    const h = canvas.height / dpr;
-
-    // 纯黑底（黑白主题）
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, w, h);
-
-    for (const s of stars) {
-      // 用正弦做缓慢明暗变化，模拟闪烁
-      const twinkle = 0.65 + 0.35 * Math.sin(t * s.speed + s.phase);
-      const alpha = Math.min(1, s.baseAlpha * twinkle);
-
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(draw);
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-  requestAnimationFrame(draw);
-})();
-</script>
+<!-- 星空背景：全站共用的脚本（会自动把 canvas 插到页面最前面） -->
+<script src="/starfield.js"></script>
 
 </body>
 </html>
