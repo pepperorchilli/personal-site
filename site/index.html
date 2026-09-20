@@ -3,108 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>个人网站</title>
-<meta name="description" content="六自由度机械臂 · 图书管理系统 · 个人项目作品集">
+<title>岱鼠之家</title>
+<meta name="description" content="欢迎来到岱鼠之家">
 <link rel="stylesheet" href="/home.css">
 </head>
 <body>
 
-<!-- ============ 顶部 ============ -->
-<header class="hero">
-  <div class="hero-inner">
-    <!-- ⚠️ 下面这几行换成你自己的信息 -->
-    <h1>你好，我是 <span class="hl">你的名字</span></h1>
-    <p class="tagline">计算机科学与技术 · 2026 届</p>
-    <p class="intro">
-      喜欢把东西从零做出来 —— 从嵌入式硬件、云端服务，到网页界面。
-      下面是我最近做的三个项目，都可以直接点进去看。
-    </p>
-    <div class="links">
-      <a href="https://github.com/pepperorchilli" target="_blank" rel="noopener">GitHub</a>
-      <a href="mailto:你的邮箱@example.com">邮箱</a>
-    </div>
-  </div>
-</header>
+<!-- 星空背景：由 JS 绘制，见页面底部 -->
+<canvas id="sky"></canvas>
 
-<!-- ============ 项目 ============ -->
-<main class="container">
-  <h2 class="section-title">我的项目</h2>
+<main class="stage">
+  <h1 class="welcome">欢迎来到岱鼠之家</h1>
 
-  <div class="cards">
-
-    <!-- 机械臂 -->
-    <a class="card" href="/control">
-      <div class="card-icon">🦾</div>
-      <h3>六自由度机械臂</h3>
-      <p class="card-desc">
-        3D 打印的六轴机械臂，支持公网远程控制与手势识别。
-        ESP32 主动连出至云端，无需公网 IP 即可随时随地操控。
-      </p>
-      <div class="tags">
-        <span>C++ / Arduino</span><span>ESP32-S3</span><span>WebSocket</span>
-        <span>Node.js</span><span>Vue 3</span><span>MediaPipe</span>
-      </div>
-      <span class="card-enter">进入控制台 →</span>
-    </a>
-
-    <!-- 图书管理 -->
-    <a class="card" href="/library/">
-      <div class="card-icon">📚</div>
-      <h3>图书管理系统</h3>
-      <p class="card-desc">
-        用 Python 手写数据结构实现的图书管理系统 ——
-        哈希表索引用户、二叉搜索树检索图书、栈支撑操作撤销。
-      </p>
-      <div class="tags">
-        <span>Python</span><span>哈希表</span><span>二叉搜索树</span>
-        <span>双向链表</span><span>Flask</span>
-      </div>
-      <span class="card-enter">进入系统 →</span>
-    </a>
-
-    <!-- 留言板 -->
-    <a class="card" href="/messages">
-      <div class="card-icon">💬</div>
-      <h3>留言板</h3>
-      <p class="card-desc">
-        给来访者留个言吧。数据存在 MySQL 里，
-        列表接口用「两条查询 + 内存归组」避免了 N+1 问题。
-      </p>
-      <div class="tags">
-        <span>MySQL</span><span>Express</span><span>索引优化</span>
-      </div>
-      <span class="card-enter">去看看 →</span>
-    </a>
-
-  </div>
+  <!-- 导航做得很淡，只是为了让访客能进各模块；
+       想去掉的话删掉这一个 nav 即可 -->
+  <nav class="links">
+    <a href="/control">机械臂</a>
+    <span>·</span>
+    <a href="/library/">图书管理</a>
+    <span>·</span>
+    <a href="/messages">留言板</a>
+  </nav>
 </main>
 
-<!-- ============ 技术栈 ============ -->
-<section class="container">
-  <h2 class="section-title">技术栈</h2>
-  <div class="stack">
-    <div class="stack-group">
-      <h4>嵌入式</h4>
-      <p>C / C++ · ESP32-S3 · I2C · PWM · 串口总线协议</p>
-    </div>
-    <div class="stack-group">
-      <h4>后端</h4>
-      <p>Node.js · Express · WebSocket · MySQL · Flask</p>
-    </div>
-    <div class="stack-group">
-      <h4>前端</h4>
-      <p>Vue 3 · Vite · HTML / CSS / JavaScript · PWA</p>
-    </div>
-    <div class="stack-group">
-      <h4>其他</h4>
-      <p>Python · OpenCV · MediaPipe · Git · Linux · Nginx</p>
-    </div>
-  </div>
-</section>
+<script>
+// ---------- 星空 ----------
+//
+// 纯 canvas 手绘，不引任何库。
+// 三层星星做出纵深感：远的暗而小、近的亮而大，各自以不同频率闪烁。
 
-<footer class="footer">
-  <p>用 Node.js + Flask + Nginx 自建部署</p>
-</footer>
+(function () {
+  const canvas = document.getElementById('sky');
+  const ctx = canvas.getContext('2d');
+
+  let stars = [];
+  let dpr = 1;
+
+  // 三层：密度、大小、闪烁速度各不相同
+  const LAYERS = [
+    { count: 0.00012, size: [0.4, 0.9], speed: 0.00025, alpha: [0.25, 0.55] }, // 远
+    { count: 0.00006, size: [0.8, 1.5], speed: 0.00045, alpha: [0.45, 0.8] },  // 中
+    { count: 0.00002, size: [1.4, 2.4], speed: 0.0008,  alpha: [0.7, 1.0] },   // 近
+  ];
+
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    buildStars(w * h, w, h);
+  }
+
+  function buildStars(area, w, h) {
+    stars = [];
+    for (const layer of LAYERS) {
+      const n = Math.round(area * layer.count);
+      for (let i = 0; i < n; i++) {
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: layer.size[0] + Math.random() * (layer.size[1] - layer.size[0]),
+          baseAlpha: layer.alpha[0] + Math.random() * (layer.alpha[1] - layer.alpha[0]),
+          speed: layer.speed * (0.6 + Math.random() * 0.8),
+          phase: Math.random() * Math.PI * 2,
+        });
+      }
+    }
+  }
+
+  function draw(t) {
+    const w = canvas.width / dpr;
+    const h = canvas.height / dpr;
+
+    // 纯黑底（黑白主题）
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, w, h);
+
+    for (const s of stars) {
+      // 用正弦做缓慢明暗变化，模拟闪烁
+      const twinkle = 0.65 + 0.35 * Math.sin(t * s.speed + s.phase);
+      const alpha = Math.min(1, s.baseAlpha * twinkle);
+
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
+</script>
 
 </body>
 </html>

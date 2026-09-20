@@ -1,125 +1,97 @@
-/* 个人网站首页样式 —— 深色主题，与各项目模块保持一致 */
+/* 首页 —— 黑白 · 星空 */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-:root {
-  --bg: #1a1a2e;
-  --bg-soft: rgba(255, 255, 255, .06);
-  --fg: #ffffff;
-  --fg-dim: #8a8aa0;
-  --fg-mute: #55556a;
-  --accent: #00e5ff;
-  --line: rgba(255, 255, 255, .1);
-}
-
-body {
+html, body {
+  height: 100%;
+  background: #000;
+  color: #fff;
+  overflow: hidden;                    /* 星空占满一屏，不出滚动条 */
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: var(--bg);
-  color: var(--fg);
   -webkit-font-smoothing: antialiased;
-  line-height: 1.65;
 }
 
-/* ---------- 顶部 ---------- */
-.hero {
-  padding: 88px 20px 64px;
-  background:
-    radial-gradient(900px 380px at 50% -10%, rgba(0, 229, 255, .12), transparent 70%),
-    linear-gradient(180deg, #1e1e38 0%, var(--bg) 100%);
-  border-bottom: 1px solid var(--line);
+/* 星空画布铺满整个视口，永远在最底层 */
+#sky {
+  position: fixed;
+  inset: 0;
+  display: block;
+  z-index: 0;
 }
 
-.hero-inner { max-width: 780px; margin: 0 auto; text-align: center; }
+/* ---------- 内容层 ---------- */
 
-h1 { font-size: 34px; font-weight: 700; letter-spacing: -.5px; }
-.hl { color: var(--accent); }
-
-.tagline { color: var(--fg-dim); font-size: 15px; margin-top: 8px; }
-
-.intro {
-  color: #b8b8cc; font-size: 15px;
-  margin: 22px auto 0; max-width: 560px;
+.stage {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 0 24px;
 }
 
-.links { margin-top: 26px; display: flex; gap: 12px; justify-content: center; }
+.welcome {
+  font-size: clamp(22px, 5vw, 42px);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  /* letter-spacing 会在最后一个字后面也留白，用等量缩进抵消，视觉才真正居中 */
+  text-indent: 0.22em;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(255, 255, 255, .35);
+  animation: fade-in 2.4s ease both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; letter-spacing: 0.5em; }
+  to   { opacity: 1; letter-spacing: 0.22em; }
+}
+
+/* ---------- 导航（刻意做得很淡，不抢主视觉）---------- */
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  opacity: 0;
+  animation: fade-in-simple 1.2s ease 1.6s both;
+}
+
+@keyframes fade-in-simple {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
 .links a {
-  color: var(--accent); text-decoration: none; font-size: 14px;
-  border: 1px solid rgba(0, 229, 255, .3); border-radius: 999px;
-  padding: 8px 20px; transition: all .18s;
-}
-.links a:hover { background: rgba(0, 229, 255, .12); border-color: rgba(0, 229, 255, .6); }
-
-/* ---------- 通用容器 ---------- */
-.container { max-width: 1000px; margin: 0 auto; padding: 56px 20px 0; }
-
-.section-title {
-  font-size: 13px; font-weight: 600; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--fg-mute);
-  margin-bottom: 20px;
+  color: #888;
+  text-decoration: none;
+  padding: 4px 2px;
+  border-bottom: 1px solid transparent;
+  transition: color .25s, border-bottom-color .25s;
 }
 
-/* ---------- 项目卡片 ---------- */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 18px;
+.links a:hover {
+  color: #fff;
+  border-bottom-color: #fff;
 }
 
-.card {
-  display: flex; flex-direction: column;
-  background: var(--bg-soft);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 24px;
-  text-decoration: none; color: inherit;
-  transition: transform .18s, border-color .18s, background .18s;
-}
-.card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(0, 229, 255, .4);
-  background: rgba(0, 229, 255, .05);
-}
-
-.card-icon { font-size: 30px; margin-bottom: 12px; }
-.card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
-.card-desc { font-size: 13.5px; color: #a8a8c0; flex: 1; }
-
-.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
-.tags span {
-  font-size: 11px; padding: 3px 9px; border-radius: 6px;
-  background: rgba(255, 255, 255, .07); color: var(--fg-dim);
-}
-
-.card-enter {
-  margin-top: 16px; font-size: 13px; color: var(--accent);
-  font-weight: 500;
-}
-
-/* ---------- 技术栈 ---------- */
-.stack {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 16px;
-}
-.stack-group {
-  background: var(--bg-soft); border: 1px solid var(--line);
-  border-radius: 14px; padding: 18px;
-}
-.stack-group h4 {
-  font-size: 12px; font-weight: 600; color: var(--accent);
-  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;
-}
-.stack-group p { font-size: 13px; color: #a8a8c0; }
-
-/* ---------- 页脚 ---------- */
-.footer {
-  text-align: center; padding: 56px 20px 48px;
-  color: var(--fg-mute); font-size: 12.5px;
+.links span {
+  color: #333;
+  user-select: none;
 }
 
 /* ---------- 移动端 ---------- */
-@media (max-width: 600px) {
-  .hero { padding: 60px 20px 44px; }
-  h1 { font-size: 26px; }
-  .container { padding-top: 40px; }
+
+@media (max-width: 480px) {
+  .stage { gap: 32px; }
+  .links { font-size: 12px; gap: 10px; }
+}
+
+/* 尊重系统的「减少动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+  .welcome, .links { animation: none; opacity: 1; }
 }
