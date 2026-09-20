@@ -27,6 +27,13 @@ WorkingDirectory=/opt/library-system/webapp
 Environment=LIBRARY_PORT=5001
 Environment=PYTHONUNBUFFERED=1
 
+# 数据库配置（图书管理要查 sessions 表校验登录状态）
+#
+# ⚠️ 密码不能写在单元文件里 —— 这个文件是要提交到 git 的。
+#    真实密码放在 /opt/library-system/.env，该文件不进版本库。
+#    前面加 "-" 表示文件不存在时不报错（只是连不上数据库）。
+EnvironmentFile=-/opt/library-system/.env
+
 # -w 2：两个工作进程（2G 内存的小机器够用）
 # 数据存在内存里，多进程会导致各自持有不同副本 —— 所以固定 1 个 worker 更安全
 ExecStart=/opt/library-system/.venv/bin/gunicorn \

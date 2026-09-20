@@ -43,6 +43,7 @@ RSYNC_EXCLUDES=(
   # ---- 凭据（绝对不能覆盖服务器上的）----
   --exclude 'config.js'
   --exclude 'secrets.h'
+  --exclude '.env'
   # ---- 依赖和构建产物（服务器上重新生成）----
   --exclude node_modules
   --exclude .venv
