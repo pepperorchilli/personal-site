@@ -101,11 +101,30 @@ if $SSH "diff -q /opt/personal-site/deploy/nginx.conf /etc/nginx/conf.d/personal
   echo "  Nginx 配置无变化"
 else
   echo "  检测到配置变化，正在应用…"
-  if $SSH "cp /opt/personal-site/deploy/nginx.conf /etc/nginx/conf.d/personal-site.conf && nginx -t" 2>&1 | tail -2; then
-    $SSH "systemctl reload nginx"
+  # 先备份再覆盖；nginx -t 不过就**回滚文件**，不只是不 reload。
+  #
+  # ⚠️ 早先的写法是「cp && nginx -t，失败就提示已保留旧配置」——
+  #    但 cp 已经执行了，坏配置**已经躺在 /etc/nginx/conf.d/ 里**，
+  #    只是没 reload 而已。下次 nginx 重启（或机器重启）就会起不来。
+  #    必须把备份恢复回去，才算真的"保留旧配置"。
+  if $SSH '
+    set -e
+    CONF=/etc/nginx/conf.d/personal-site.conf
+    BAK="${CONF}.bak-push"
+    cp -a "$CONF" "$BAK" 2>/dev/null || true   # 首次部署时可能还没有旧配置
+    cp /opt/personal-site/deploy/nginx.conf "$CONF"
+    if nginx -t >/dev/null 2>&1; then
+      systemctl reload nginx
+      echo "RELOAD_OK"
+    else
+      cp -a "$BAK" "$CONF"
+      nginx -t >/dev/null 2>&1 && systemctl reload nginx
+      echo "ROLLED_BACK"
+    fi
+  ' 2>&1 | tail -1 | grep -q "RELOAD_OK"; then
     echo "  ✅ 已应用并重载"
   else
-    echo "  ❌ 配置有语法错误，已保留旧配置（nginx -t 未通过）"
+    echo "  ❌ 配置有语法错误，已回滚到旧配置（nginx -t 未通过）"
   fi
 fi
 
@@ -143,5 +162,5 @@ $SSH '
 
 echo ""
 echo "=================================================="
-echo "  部署完成 —— http://$SERVER_IP"
+echo "  部署完成 —— https://qiudai.site"
 echo "=================================================="
